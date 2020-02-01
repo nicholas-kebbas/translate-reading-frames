@@ -20,8 +20,8 @@ gencode = {
     'GGA':'G', 'GGC':'G', 'GGG':'G', 'GGT':'G',
     'TCA':'S', 'TCC':'S', 'TCG':'S', 'TCT':'S',
     'TTC':'F', 'TTT':'F', 'TTA':'L', 'TTG':'L',
-    'TAC':'Y', 'TAT':'Y', 'TAA':'_', 'TAG':'_',
-    'TGC':'C', 'TGT':'C', 'TGA':'_', 'TGG':'W'
+    'TAC':'Y', 'TAT':'Y', 'TAA':'*', 'TAG':'*',
+    'TGC':'C', 'TGT':'C', 'TGA':'*', 'TGG':'W'
 }
 
 
@@ -32,40 +32,52 @@ def read_dna(filename):
     """
     # input will  be seq.fasta.txt
     with open(filename, 'r') as infile:
-
         seq = infile.read()
         # loop through the file, check against the dictionary
         s = re.sub('[^acgtACGT]', '', seq).upper()
+        stringLength = len(s)
         # parse the data. use the regex
-        for key in gencode.keys():
-            s = s.replace(key, gencode[key])
-        print(s)
-        # read from filename and create dictionary
+        output = "5'3' Frame 1 \r\n"
+        output += process_frames(0, s, stringLength)
+        output += "\r\n\r\n5'3' Frame 2 \r\n"
+        output += process_frames(1, s, stringLength)
+        output += "\r\n\r\n5'3' Frame 3 \r\n"
+        output += process_frames(2, s, stringLength)
+
+        reversed = s[::-1]
+        print(reversed)
+        output += "\r\n\r\n3'5' Frame 1 \r\n"
+        output += process_frames(0, reversed, stringLength)
+        output += "\r\n\r\n3'5' Frame 2 \r\n"
+        output += process_frames(1, reversed, stringLength)
+        output += "\r\n\r\n3'5' Frame 3 \r\n"
+        output += process_frames(2, reversed, stringLength)
+
+
 
         # create the output file
-        output = open("output.txt", "w")
-        output.write(s)
+        output_file = open("output.txt", "w")
+        output_file.write(output)
         pass
 
 
-def complement(seq, comp):
-    """
-    :param seq:
-    :param comp:
-    :return:
-    /* input the exception here */
-    :raises:
-    """
-    pass
 
-
-
-def find_reading_frame(seq, pos, codon_table):
-    pass
-
-
-def write_frames(gene, rev_complement, filename):
-    pass
+def process_frames(startingIndex, input, stringLength):
+    i = startingIndex
+    returnString = ""
+    while i < stringLength:
+        check = input[i]
+        for j in range(i + 1, i + 3):
+            if j >= stringLength:
+                continue
+            check += input[j]
+            # get the next 2
+        if check not in gencode:
+            break
+        encoded = gencode[check]
+        returnString += encoded
+        i = i + 3
+    return returnString
 
 
 def main():
@@ -74,9 +86,5 @@ def main():
         return
     read_dna(sys.argv[1])
     pass
-
-
-if __name__ == 'main':
-    main()
 
 main()
