@@ -3,6 +3,8 @@ import sys
 
 # use s = re.sub('[^acgtACGT]+', '', seq).upper() (or lower?) may or may not need the + sign
 # for regex to remove all non alpha
+
+# dictionary found here: https://pythonforbiologists.com/dictionaries/
 gencode = {
     'ATA':'I', 'ATC':'I', 'ATT':'I', 'ATG':'M',
     'ACA':'T', 'ACC':'T', 'ACG':'T', 'ACT':'T',
@@ -30,10 +32,19 @@ def read_dna(filename):
     """
     # input will  be seq.fasta.txt
     with open(filename, 'r') as infile:
-        print(infile.name)
-        # parse the data
 
+        seq = infile.read()
+        # loop through the file, check against the dictionary
+        s = re.sub('[^acgtACGT]', '', seq).upper()
+        # parse the data. use the regex
+        for key in gencode.keys():
+            s = s.replace(key, gencode[key])
+        print(s)
         # read from filename and create dictionary
+
+        # create the output file
+        output = open("output.txt", "w")
+        output.write(s)
         pass
 
 
@@ -58,6 +69,9 @@ def write_frames(gene, rev_complement, filename):
 
 
 def main():
+    if len(sys.argv) == 1:
+        print("Please specify an input file")
+        return
     read_dna(sys.argv[1])
     pass
 
