@@ -24,6 +24,8 @@ gencode = {
     'TGC':'C', 'TGT':'C', 'TGA':'*', 'TGG':'W'
 }
 
+complements = {'A':'T', 'T':'A', 'G':'C', 'C':'G'}
+
 
 def read_dna(filename):
     """
@@ -45,15 +47,13 @@ def read_dna(filename):
         output += process_frames(2, s, stringLength)
 
         reversed = s[::-1]
-        print(reversed)
+        complemented = process_complements(0, reversed, stringLength)
         output += "\r\n\r\n3'5' Frame 1 \r\n"
-        output += process_frames(0, reversed, stringLength)
+        output += process_frames(0, complemented, stringLength)
         output += "\r\n\r\n3'5' Frame 2 \r\n"
-        output += process_frames(1, reversed, stringLength)
+        output += process_frames(1, complemented, stringLength)
         output += "\r\n\r\n3'5' Frame 3 \r\n"
-        output += process_frames(2, reversed, stringLength)
-
-
+        output += process_frames(2, complemented, stringLength)
 
         # create the output file
         output_file = open("output.txt", "w")
@@ -61,9 +61,7 @@ def read_dna(filename):
         pass
 
 
-
-def process_frames(startingIndex, input, stringLength):
-    i = startingIndex
+def process_frames(i, input, stringLength):
     returnString = ""
     while i < stringLength:
         check = input[i]
@@ -80,11 +78,24 @@ def process_frames(startingIndex, input, stringLength):
     return returnString
 
 
+def process_complements(i, input, stringLength):
+    returnString = ""
+    while i < stringLength:
+        check = input[i]
+        if check not in complements:
+            continue
+        encoded = complements[check]
+        returnString += encoded
+        i = i+1
+    return returnString
+
+
 def main():
     if len(sys.argv) == 1:
         print("Please specify an input file")
         return
     read_dna(sys.argv[1])
     pass
+
 
 main()
